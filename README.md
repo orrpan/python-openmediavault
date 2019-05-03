@@ -1,32 +1,28 @@
-===========================
-Python API for Synology DSM
-===========================
+# Python API for Openmediavault
 
-.. image:: https://travis-ci.org/StaticCube/python-synology.svg?branch=master
-    :target: https://travis-ci.org/StaticCube/python-synology
+Based on [python-synology](https://github.com/StaticCube/python-synology) by [FG van Zeelst StaticCube](https://github.com/StaticCube/)
 
-Installation
-============
+-----
+## Installation (soon)
+```sh
+git clone https://github.com/orrpan/python-openmediavault.git
+cd python-openmediavault
+[sudo] pip install setup.py
+```
+-----
+## Usage
 
-.. code-block:: bash
-
-    [sudo] pip install python-synology
-
-
-Usage
-=====
-
-Module
+### Module
 ------
 
-You can import the module as `SynologyDSM`.
+You can import the module as `Openmediavault`.
 
-.. code-block:: python
+```python
 
-    from SynologyDSM import SynologyDSM
+    from Openmediavault import Openmediavault
 
     print("Creating Valid API")
-    api = SynologyDSM("<SynologyIp>", "<SynologyPort>", "<Username>", "<Password>")
+    api = Openmediavault("<OpenmediavaultIp>", "<OpenmediavaultPort>", "<Username>", "<Password>")
 
     print("=== Utilisation ===")
     print("CPU Load:   " + str(api.utilisation.cpu_total_load) + " %")
@@ -48,8 +44,9 @@ You can import the module as `SynologyDSM`.
         print("S-Status:   " + str(api.storage.disk_smart_status(disk)))
         print("Status:     " + str(api.storage.disk_status(disk)))
         print("Temp:       " + str(api.storage.disk_temp(disk)))
-      
-Credits / Special Thanks
-=====
+```
+
+## Credits / Special Thanks
+- https://github.com/StaticCube (forked from)
 - https://github.com/florianeinfalt
 - https://github.com/tchellomello
