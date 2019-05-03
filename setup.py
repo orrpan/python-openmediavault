@@ -10,15 +10,15 @@ import io
 from setuptools import setup
 
 setup(
-  name = 'python-synology',
-  packages = ['SynologyDSM'], # this must be the same as the name above
-  version = '0.2.0',
-  description = 'Python API for communication with Synology DSM',
-  author = 'FG van Zeelst (StaticCube)',
-  author_email = 'GitHub@StaticCube.com',
-  url = 'https://github.com/StaticCube/python-synology/',
-  download_url = 'https://github.com/StaticCube/python-synology/tarball/0.2.0',
-  keywords = ['synology-dsm', 'synology'],
+  name = 'python-openmediavault',
+  packages = ['OpenMediaVault'], # this must be the same as the name above
+  version = '0.0.1',
+  description = 'Python API for communication with OpenMediaVault, based on SynologyDSM python-synology by FG van Zeelst (StaticCube)',
+  author = 'FG van Zeelst (StaticCube), Oskar Joelsson (orrpan)',
+  author_email = '',
+  url = 'https://github.com/orrpan/python-openmediavault',
+  download_url = 'https://github.com/orrpan/python-openmediavault/tarball/0.0.1',
+  keywords = ['openmediavault', 'omv'],
   classifiers = [],
   install_requires=['requests>=1.0.0']
 )
