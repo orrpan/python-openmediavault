@@ -6,9 +6,8 @@ import urllib3
 from requests.compat import json
 
 
-class SynoFormatHelper(object):
-    """Class containing various formatting functions
-    nothing changed so name is still from python-synolog"""
+class FormatHelper(object):
+    """Class containing various formatting functions"""
     @staticmethod
     def bytes_to_readable(num):
         """Converts bytes to a human readable format"""
@@ -128,7 +127,7 @@ class OmvUtilization(object):
     #         # Memory is actually returned in KB's so multiply before converting
     #         return_data = int(self._data["memory"]["memory_size"]) * 1024
     #         if human_readable:
-    #             return SynoFormatHelper.bytes_to_readable(
+    #             return FormatHelper.bytes_to_readable(
     #                 return_data)
     #         else:
     #             return return_data
@@ -139,7 +138,7 @@ class OmvUtilization(object):
 #             # Memory is actually returned in KB's so multiply before converting
 #             return_data = int(self._data["memory"]["avail_swap"]) * 1024
 #             if human_readable:
-#                 return SynoFormatHelper.bytes_to_readable(
+#                 return FormatHelper.bytes_to_readable(
 #                     return_data)
 #             else:
 #                 return return_data
@@ -150,7 +149,7 @@ class OmvUtilization(object):
 #             # Memory is actually returned in KB's so multiply before converting
 #             return_data = int(self._data["memory"]["cached"]) * 1024
 #             if human_readable:
-#                 return SynoFormatHelper.bytes_to_readable(
+#                 return FormatHelper.bytes_to_readable(
 #                     return_data)
 #             else:
 #                 return return_data
@@ -161,7 +160,7 @@ class OmvUtilization(object):
 #             # Memory is actually returned in KB's so multiply before converting
 #             return_data = int(self._data["memory"]["avail_real"]) * 1024
 #             if human_readable:
-#                 return SynoFormatHelper.bytes_to_readable(
+#                 return FormatHelper.bytes_to_readable(
 #                     return_data)
 #             else:
 #                 return return_data
@@ -172,7 +171,7 @@ class OmvUtilization(object):
 #             # Memory is actually returned in KB's so multiply before converting
 #             return_data = int(self._data["memory"]["total_real"]) * 1024
 #             if human_readable:
-#                 return SynoFormatHelper.bytes_to_readable(
+#                 return FormatHelper.bytes_to_readable(
 #                     return_data)
 #             else:
 #                 return return_data
@@ -183,7 +182,7 @@ class OmvUtilization(object):
 #             # Memory is actually returned in KB's so multiply before converting
 #             return_data = int(self._data["memory"]["total_swap"]) * 1024
 #             if human_readable:
-#                 return SynoFormatHelper.bytes_to_readable(
+#                 return FormatHelper.bytes_to_readable(
 #                     return_data)
 #             else:
 #                 return return_data
@@ -201,7 +200,7 @@ class OmvUtilization(object):
 #         if network is not None:
 #             return_data = int(network["tx"])
 #             if human_readable:
-#                 return SynoFormatHelper.bytes_to_readable(
+#                 return FormatHelper.bytes_to_readable(
 #                     return_data)
 #             else:
 #                 return return_data
@@ -212,7 +211,7 @@ class OmvUtilization(object):
 #         if network is not None:
 #             return_data = int(network["rx"])
 #             if human_readable:
-#                 return SynoFormatHelper.bytes_to_readable(
+#                 return FormatHelper.bytes_to_readable(
 #                     return_data)
 #             else:
 #                 return return_data
@@ -275,7 +274,7 @@ class OmvStorage(object):
         if volume is not None and self._volume_mounted(volume):
             return_data = int(volume["size"])
             if human_readable:
-                return SynoFormatHelper.bytes_to_readable(
+                return FormatHelper.bytes_to_readable(
                     return_data)
             else:
                 return return_data
@@ -286,7 +285,7 @@ class OmvStorage(object):
         if volume is not None and self._volume_mounted(volume["uuid"]):
             return_data = int(int(volume["size"])-int(volume["available"]))
             if human_readable:
-                return SynoFormatHelper.bytes_to_readable(
+                return FormatHelper.bytes_to_readable(
                     return_data)
             else:
                 return return_data
