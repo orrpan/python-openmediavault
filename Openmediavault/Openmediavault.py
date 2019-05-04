@@ -3,7 +3,6 @@ based on StaticCube https://github.com/StaticCube/python-synology"""
 # -*- coding:utf-8 -*-
 import requests
 import urllib3
-from requests.compat import json
 
 
 class FormatHelper(object):
@@ -101,6 +100,7 @@ class OmvUtilization(object):
     def cpu_5min_load(self):
         """Average CPU load past 5 minutes"""
         return self._get_cpu_avg_load()[1]
+
     @property
     def cpu_15min_load(self):
         """Average CPU load past 15 minutes"""
@@ -113,29 +113,31 @@ class OmvUtilization(object):
                 if str(mem_usage["name"]) == "Memory usage":
                     return mem_usage["value"]
 
-    # @property
-    # def memory_real_usage(self):
-    #     """Real Memory Usage from openmediavault"""
-    #     mem_usage = self._get_mem_usage()
-    #     return str()
-    #     if self._data is not None:
-    #         return str(self._data["memory"]["real_usage"])
-
-    # def memory_size(self, human_readable=True):
-    #     """Total Memory Size of openmediavault"""
-    #     if self._data is not None:
-    #         # Memory is actually returned in KB's so multiply before converting
-    #         return_data = int(self._data["memory"]["memory_size"]) * 1024
-    #         if human_readable:
-    #             return FormatHelper.bytes_to_readable(
-    #                 return_data)
-    #         else:
-    #             return return_data
+#    # @property
+#    def memory_real_usage(self):
+#        """Real Memory Usage from openmediavault"""
+#        mem_usage = self._get_mem_usage()
+#        return str()
+#        if self._data is not None:
+#            return str(self._data["memory"]["real_usage"])
+#
+#    def memory_size(self, human_readable=True):
+#        """Total Memory Size of openmediavault"""
+#        if self._data is not None:
+#            # Memory is actually returned in KB's
+#            # so multiply before converting
+#            return_data = int(self._data["memory"]["memory_size"]) * 1024
+#            if human_readable:
+#                return FormatHelper.bytes_to_readable(
+#                    return_data)
+#            else:
+#                return return_data
 
 #     def memory_available_swap(self, human_readable=True):
 #         """Total Available Memory Swap"""
 #         if self._data is not None:
-#             # Memory is actually returned in KB's so multiply before converting
+#             # Memory is actually returned in KB's so
+#             # multiply before converting
 #             return_data = int(self._data["memory"]["avail_swap"]) * 1024
 #             if human_readable:
 #                 return FormatHelper.bytes_to_readable(
@@ -146,7 +148,8 @@ class OmvUtilization(object):
 #     def memory_cached(self, human_readable=True):
 #         """Total Cached Memory"""
 #         if self._data is not None:
-#             # Memory is actually returned in KB's so multiply before converting
+#             # Memory is actually returned in KB's so
+#             # multiply before converting
 #             return_data = int(self._data["memory"]["cached"]) * 1024
 #             if human_readable:
 #                 return FormatHelper.bytes_to_readable(
@@ -157,7 +160,8 @@ class OmvUtilization(object):
 #     def memory_available_real(self, human_readable=True):
 #         """Real available memory"""
 #         if self._data is not None:
-#             # Memory is actually returned in KB's so multiply before converting
+#             # Memory is actually returned in KB's so
+#             # multiply before converting
 #             return_data = int(self._data["memory"]["avail_real"]) * 1024
 #             if human_readable:
 #                 return FormatHelper.bytes_to_readable(
@@ -168,7 +172,8 @@ class OmvUtilization(object):
 #     def memory_total_real(self, human_readable=True):
 #         """Total available real memory"""
 #         if self._data is not None:
-#             # Memory is actually returned in KB's so multiply before converting
+#             # Memory is actually returned in KB's so
+#             # multiply before converting
 #             return_data = int(self._data["memory"]["total_real"]) * 1024
 #             if human_readable:
 #                 return FormatHelper.bytes_to_readable(
@@ -179,7 +184,8 @@ class OmvUtilization(object):
 #     def memory_total_swap(self, human_readable=True):
 #         """Total Swap Memory"""
 #         if self._data is not None:
-#             # Memory is actually returned in KB's so multiply before converting
+#             # Memory is actually returned in KB's so
+#             # multiply before converting
 #             return_data = int(self._data["memory"]["total_swap"]) * 1024
 #             if human_readable:
 #                 return FormatHelper.bytes_to_readable(
@@ -256,7 +262,7 @@ class OmvStorage(object):
         volume = self._get_volume(volume)
         try:
             raid = self._get_raid(volume["devicefile"])
-        except:
+        except KeyError:
             return None
         if volume is not None and raid is not None:
             return raid["level"]
@@ -307,7 +313,7 @@ class OmvStorage(object):
         if volume is not None:
             if self.volume_device_type(volume["uuid"]) is None:
                 return self.disk_temp(volume["parentdevicefile"])
-            
+
             vol_disks = self._get_raid(volume["devicefile"])
             if vol_disks is not None:
                 total_temp = 0
@@ -328,7 +334,7 @@ class OmvStorage(object):
         if volume is not None:
             if self.volume_device_type(volume["uuid"]) is None:
                 return self.disk_temp(volume["parentdevicefile"])
-            
+
             vol_disks = self._get_raid(volume["devicefile"])
             if vol_disks is not None:
                 max_temp = 0
@@ -338,8 +344,8 @@ class OmvStorage(object):
                     if disk_temp is not None and disk_temp > max_temp:
                         max_temp = disk_temp
 
-                return max_temp   
-    
+                return max_temp
+
     @property
     def raid(self):
         """Returns all available raids"""
@@ -361,7 +367,6 @@ class OmvStorage(object):
         raid = self._get_raid(devicefile)
         if raid is not None:
             return raid["name"]
-
 
     @property
     def disks(self):
@@ -390,7 +395,6 @@ class OmvStorage(object):
     #     disk = self._get_disk(disk)
     #     if disk is not None:
     #         return disk["device"]
-
 
     def disk_smart_status(self, disk):
         """Status of disk according to S.M.A.R.T)"""
@@ -422,6 +426,7 @@ class OmvStorage(object):
         if disk is not None:
             return int(disk["temperature"][0:-2])
 
+
 class OmvHealth(object):
     """Class containing health data"""
     def __init__(self, raw_input):
@@ -440,7 +445,7 @@ class OmvHealth(object):
             temps = []
             for temp in self._data:
                 if "temperature" in temp["name"]:
-                    temps.append(temp["index"]) 
+                    temps.append(temp["index"])
             return temps
 
     def _get_temp(self, temp_index):
@@ -463,7 +468,7 @@ class OmvHealth(object):
             fans = []
             for fan in self._data:
                 if "Fan" in fan["name"]:
-                    fans.append(fan["index"]) 
+                    fans.append(fan["index"])
             return fans
 
     def _get_fan(self, fan_index):
@@ -481,7 +486,7 @@ class OmvHealth(object):
 
 
 class Openmediavault():
-    #pylint: disable=too-many-arguments,too-many-instance-attributes
+    # pylint: disable=too-many-arguments,too-many-instance-attributes
     """Class containing the main openmediavault functions"""
     def __init__(self, omv_ip, omv_port, username, password,
                  use_https=False, debugmode=False):
@@ -511,7 +516,7 @@ class Openmediavault():
             self.api_url = "https://%s:%s/rpc.php" % (omv_ip, omv_port)
         else:
             self.api_url = "http://%s:%s/rpc.php" % (omv_ip, omv_port)
-    #pylint: enable=too-many-arguments,too-many-instance-attributes
+    # pylint: enable=too-many-arguments,too-many-instance-attributes
 
     def _debuglog(self, message):
         """Outputs message if debug mode is enabled"""
@@ -520,12 +525,14 @@ class Openmediavault():
 
     def _construct_packet(self, service, method, params="null"):
         """Construct message string."""
-        return '{"service":"%s","method":"%s","params":%s}' % (service, method, params)
+        return '{"service":"%s","method":"%s","params":%s}' % \
+            (service, method, params)
 
     def _login(self):
         """Build and execute login request"""
-        credentials = '{"username":"%s","password":"%s"}' % (self.username, self.password)
-        login_packet = self._construct_packet("session", "login", credentials) 
+        credentials = '{"username":"%s","password":"%s"}' % \
+            (self.username, self.password)
+        login_packet = self._construct_packet("session", "login", credentials)
 
         result = self._execute_post_url(login_packet)
 
@@ -541,7 +548,7 @@ class Openmediavault():
 
     def _logout(self):
         """Build and execute logout request"""
-        logout_packet = self._construct_packet("session", "logout") 
+        logout_packet = self._construct_packet("session", "logout")
 
         result = self._execute_post_url(logout_packet)
 
@@ -569,11 +576,10 @@ class Openmediavault():
                 self._session = None
             self._debuglog("Creating New Session")
             self._session = requests.Session()
-            
+
             # disable SSL certificate verification
             if self._use_https:
                 self._session.verify = False
-
 
             # We Created a new Session so login
             if self._login() is False:
@@ -593,13 +599,15 @@ class Openmediavault():
     def _execute_post_url(self, data):
         """Function to execute and handle a GET request"""
         # Prepare Request
-        self._debuglog("Requesting URL: '" + self.api_url + "', msg: '" + data + "'")
-        
+        self._debuglog(
+            "Requesting URL: '" + self.api_url + "', msg: '" + data + "'")
+
         # Execute Request
         try:
-            resp = self._session.post(self.api_url, cookies=self.cookies, data=data, verify=False)
+            resp = self._session.post(
+                self.api_url, cookies=self.cookies, data=data, verify=False)
             self._debuglog("Request executed: " + str(resp.status_code))
-            
+
             if resp.status_code == 200:
                 # We got a response
                 json_data = resp.json()
@@ -614,7 +622,8 @@ class Openmediavault():
                     self._debuglog("Data returned: " + str(json_data))
                     return json_data
                 else:
-                    if json_data["error"]["code"] in {0, 105, 106, 107, 119, 5000, 5001}:
+                    if json_data["error"]["code"] in \
+                            {0, 105, 106, 107, 119, 5000, 5001}:
                         self._debuglog("Session error: " +
                                        str(json_data["error"]["code"]))
                         self._session_error = True
@@ -624,12 +633,11 @@ class Openmediavault():
                 # We got a 404 or 401
                 self._debuglog("Error: 404 or 401")
                 return None
-        #pylint: disable=bare-except
-        except:
-            self._debuglog("Error: unknown")
+        # pylint: disable=bare-except
+        except KeyError:
+            self._debuglog("Error: KeyError")
             return None
-        #pylint: enable=bare-except
-
+        # pylint: enable=bare-except
 
     def update(self):
         """Updates the various instanced modules"""
@@ -639,15 +647,15 @@ class Openmediavault():
         if self._storage is not None:
             json_response = {}
             json_response['volumes'] = \
-                self._post_url(self._construct_packet(\
+                self._post_url(self._construct_packet(
                     "FileSystemMgmt", "enumerateFilesystems"))["response"]
 
             json_response['disks'] = \
-                self._post_url(self._construct_packet(\
+                self._post_url(self._construct_packet(
                     "Smart", "enumerateDevices"))["response"]
 
             json_response['raid'] = \
-                self._post_url(self._construct_packet(\
+                self._post_url(self._construct_packet(
                     "RaidMgmt", "enumerateDevices"))["response"]
 
             self._storage.update(json_response)
@@ -660,7 +668,8 @@ class Openmediavault():
         """Getter for various Utilisation variables"""
         if self._utilisation is None:
             packet = self._construct_packet("System", "getInformation")
-            self._utilisation = OmvUtilization(self._post_url(packet)["response"])
+            self._utilisation = OmvUtilization(
+                self._post_url(packet)["response"])
         return self._utilisation
 
     @property
@@ -669,20 +678,20 @@ class Openmediavault():
         if self._storage is None:
             json_response = {}
             json_response['volumes'] = \
-                self._post_url(self._construct_packet(\
+                self._post_url(self._construct_packet(
                     "FileSystemMgmt", "enumerateFilesystems"))["response"]
 
             json_response['disks'] = \
-                self._post_url(self._construct_packet(\
+                self._post_url(self._construct_packet(
                     "Smart", "enumerateDevices"))["response"]
 
             json_response['raid'] = \
-                self._post_url(self._construct_packet(\
+                self._post_url(self._construct_packet(
                     "RaidMgmt", "enumerateDevices"))["response"]
 
             self._storage = OmvStorage(json_response)
         return self._storage
-        
+
     @property
     def health(self):
         """Getter for various Storage variables"""
