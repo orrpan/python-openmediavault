@@ -21,5 +21,8 @@ setup(
   download_url='https://github.com/orrpan/python-openmediavault/tarball/0.0.1',
   keywords=['openmediavault', 'omv'],
   classifiers=[],
-  install_requires=['requests>=1.0.0']
+  install_requires=[
+    'requests>=1.0.0',
+    'flake8>=3.7.7'
+    ]
 )

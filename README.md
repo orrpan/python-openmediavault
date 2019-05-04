@@ -1,4 +1,4 @@
-# Python API for Openmediavault
+# Python API for Openmediavault [![Build Status](https://travis-ci.org/orrpan/python-openmediavault.svg?branch=master)](https://travis-ci.org/orrpan/python-openmediavault)
 
 Based on [python-synology](https://github.com/StaticCube/python-synology) by [FG van Zeelst StaticCube](https://github.com/StaticCube/)
 
