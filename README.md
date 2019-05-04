@@ -3,7 +3,7 @@
 Based on [python-synology](https://github.com/StaticCube/python-synology) by [FG van Zeelst StaticCube](https://github.com/StaticCube/)
 
 -----
-## Installation (soon)
+## Installation
 ```sh
 git clone https://github.com/orrpan/python-openmediavault.git
 cd python-openmediavault
