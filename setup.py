@@ -11,7 +11,7 @@ from setuptools import setup
 
 setup(
   name='python-openmediavault',
-  packages=['OpenMediaVault'],  # this must be the same as the name above
+  packages=['Openmediavault'],
   version='0.0.1',
   description='Python API for communication with OpenMediaVault, \
     based on SynologyDSM python-synology by FG van Zeelst (StaticCube)',
