@@ -52,14 +52,38 @@ class OmvUtilization(object):
     def update(self, raw_input):
         """Allows updating Utilisation data with raw_input data"""
         if raw_input is not None:
-            self._data = raw_input
+            self._data = {}
+            for val in raw_input:
+                if val["index"] == 0:
+                    self._data["hostname"] = val["value"]
+                elif val["index"] == 1:
+                    self._data["version"] = val["value"]
+                elif val["index"] == 2:
+                    self._data["processor"] = val["value"]
+                elif val["index"] == 3:
+                    self._data["kernel"] = val["value"]
+                elif val["index"] == 4:
+                    self._data["systemtime"] = val["value"]
+                elif val["index"] == 5:
+                    self._data["uptime"] = val["value"]
+                elif val["index"] == 6:
+                    self._data["load_average"] = val["value"]
+                elif val["index"] == 7:
+                    self._data["cpu_load"] = val["value"]["value"]
+                elif val["index"] == 8:
+                    self._data["mem_usage"] = val["value"]["value"]
 
-    def _get_cpu_load(self):
-        """Get avg load and parse"""
+    @property
+    def hostname(self):
+        """Hostname of openmediavault"""
         if self._data is not None:
-            for cpu_avg in self._data:
-                if str(cpu_avg["name"]) == "CPU usage":
-                    return cpu_avg["value"]["value"]
+            return self._data["hostname"]
+
+    @property
+    def up_time(self):
+        """Get uptime"""
+        if self._data is not None:
+            return self._data["uptime"]
 
     # @property
     # def cpu_other_load(self):
@@ -82,14 +106,13 @@ class OmvUtilization(object):
     @property
     def cpu_total_load(self):
         """Total CPU load for openmediavault"""
-        return self._get_cpu_load()
+        if self._data is not None:
+            return self._data["cpu_load"]
 
     def _get_cpu_avg_load(self):
         """Get avg load and parse"""
         if self._data is not None:
-            for cpu_avg in self._data:
-                if str(cpu_avg["name"]) == "Load average":
-                    return cpu_avg["value"].split(', ')
+            return self._data["load_average"].split(', ')
 
     @property
     def cpu_1min_load(self):
@@ -106,12 +129,11 @@ class OmvUtilization(object):
         """Average CPU load past 15 minutes"""
         return self._get_cpu_avg_load()[2]
 
-    def _get_mem_usage(self):
+    @property
+    def memory_real_usage(self):
         """Get mem usage"""
         if self._data is not None:
-            for mem_usage in self._data:
-                if str(mem_usage["name"]) == "Memory usage":
-                    return mem_usage["value"]
+            return self._data["mem_usage"]
 
 #    # @property
 #    def memory_real_usage(self):
@@ -240,14 +262,14 @@ class OmvStorage(object):
         if self._data is not None:
             volumes = []
             for volume in self._data["volumes"]:
-                volumes.append(volume["uuid"])
+                volumes.append(volume["devicefile"])
             return volumes
 
-    def _get_volume(self, volume_uuid):
+    def _get_volume(self, volume_devicefile):
         """Returns a specific volume"""
         if self._data is not None:
             for volume in self._data["volumes"]:
-                if volume["uuid"] == volume_uuid:
+                if volume["devicefile"] == volume_devicefile:
                     return volume
 
     def volume_status(self, volume):
@@ -262,10 +284,11 @@ class OmvStorage(object):
         volume = self._get_volume(volume)
         try:
             raid = self._get_raid(volume["devicefile"])
+            if volume is not None and raid is not None:
+                return raid["level"]
         except KeyError:
-            return None
-        if volume is not None and raid is not None:
-            return raid["level"]
+            pass
+        return None
 
     def _volume_mounted(self, volume):
         """Returns boolean if mounted"""
@@ -277,7 +300,7 @@ class OmvStorage(object):
     def volume_size_total(self, volume, human_readable=True):
         """Total size of volume"""
         volume = self._get_volume(volume)
-        if volume is not None and self._volume_mounted(volume):
+        if volume is not None and self._volume_mounted(volume["devicefile"]):
             return_data = int(volume["size"])
             if human_readable:
                 return FormatHelper.bytes_to_readable(
@@ -288,7 +311,7 @@ class OmvStorage(object):
     def volume_size_used(self, volume, human_readable=True):
         """Total used size in volume"""
         volume = self._get_volume(volume)
-        if volume is not None and self._volume_mounted(volume["uuid"]):
+        if volume is not None and self._volume_mounted(volume["devicefile"]):
             return_data = int(int(volume["size"])-int(volume["available"]))
             if human_readable:
                 return FormatHelper.bytes_to_readable(
@@ -311,7 +334,7 @@ class OmvStorage(object):
         """Average temperature of all disks making up the volume"""
         volume = self._get_volume(volume)
         if volume is not None:
-            if self.volume_device_type(volume["uuid"]) is None:
+            if self.volume_device_type(volume["devicefile"]) is None:
                 return self.disk_temp(volume["parentdevicefile"])
 
             vol_disks = self._get_raid(volume["devicefile"])
@@ -332,7 +355,7 @@ class OmvStorage(object):
         """Maximum temperature of all disks making up the volume"""
         volume = self._get_volume(volume)
         if volume is not None:
-            if self.volume_device_type(volume["uuid"]) is None:
+            if self.volume_device_type(volume["devicefile"]) is None:
                 return self.disk_temp(volume["parentdevicefile"])
 
             vol_disks = self._get_raid(volume["devicefile"])
@@ -347,7 +370,7 @@ class OmvStorage(object):
                 return max_temp
 
     @property
-    def raid(self):
+    def raids(self):
         """Returns all available raids"""
         if self._data is not None:
             raids = []
@@ -362,25 +385,44 @@ class OmvStorage(object):
                 if raid["devicefile"] == raid_devicefile:
                     return raid
 
-    def raid_name_from_devicefile(self, devicefile):
+    def raid_name(self, raid):
         """The name of this raid"""
-        raid = self._get_raid(devicefile)
+        raid = self._get_raid(raid)
         if raid is not None:
             return raid["name"]
+
+    def raid_devices(self, raid):
+        """The devices of this raid"""
+        raid = self._get_raid(raid)
+        if raid is not None:
+            devices = []
+            for device in raid["devices"]:
+                devices.append(device)
+            return devices
+
+    def devicefile_from_raid(self, disk):
+        """Get raid of disk"""
+        for raid in self.raids:
+            for device in self.raid_devices(raid):
+                if device[0:-1] == disk["devicefile"]:
+                    print(raid)
+                    return raid
+
+        return raid
 
     @property
     def disks(self):
         """Returns all available (internal) disks"""
         if self._data is not None:
             disks = []
-            for disk in self._data["disks"]:
+            for disk in self._data["smart"]:
                 disks.append(disk["devicefile"])
             return disks
 
     def _get_disk(self, disk_devicefile):
         """Returns a specific disk"""
         if self._data is not None:
-            for disk in self._data["disks"]:
+            for disk in self._data["smart"]:
                 if disk["devicefile"] == disk_devicefile:
                     return disk
 
@@ -390,41 +432,23 @@ class OmvStorage(object):
         if disk is not None:
             return disk["model"]
 
-    # def disk_device(self, disk):
-    #     """The mount point of this disk"""
-    #     disk = self._get_disk(disk)
-    #     if disk is not None:
-    #         return disk["device"]
-
     def disk_smart_status(self, disk):
         """Status of disk according to S.M.A.R.T)"""
         disk = self._get_disk(disk)
         if disk is not None:
             return disk["overallstatus"]
 
-    # def disk_status(self, disk):
-    #     """Status of disk"""
-    #     disk = self._get_disk(disk)
-    #     if disk is not None:
-    #         return disk["state"]
-
-    # def disk_exceed_bad_sector_thr(self, disk):
-    #     """Checks if disk has exceeded maximum bad sector threshold"""
-    #     disk = self._get_disk(disk)
-    #     if disk is not None:
-    #         return disk["exceed_bad_sector_thr"]
-
-    # def disk_below_remain_life_thr(self, disk):
-    #     """Checks if disk has fallen below minimum life threshold"""
-    #     disk = self._get_disk(disk)
-    #     if disk is not None:
-    #         return disk["below_remain_life_thr"]
-
     def disk_temp(self, disk):
         """Returns the temperature of the disk"""
         disk = self._get_disk(disk)
         if disk is not None:
-            return int(disk["temperature"][0:-2])
+            try:
+                return int(disk["temperature"][0:-2])
+            except ValueError:
+                pass
+            else:
+                return int(disk["temperature"])
+        return None
 
 
 class OmvHealth(object):
@@ -650,13 +674,17 @@ class Openmediavault():
                 self._post_url(self._construct_packet(
                     "FileSystemMgmt", "enumerateFilesystems"))["response"]
 
-            json_response['disks'] = \
+            json_response['smart'] = \
                 self._post_url(self._construct_packet(
                     "Smart", "enumerateDevices"))["response"]
 
             json_response['raid'] = \
                 self._post_url(self._construct_packet(
                     "RaidMgmt", "enumerateDevices"))["response"]
+
+            json_response['disk'] = \
+                self._post_url(self._construct_packet(
+                    "DiskMgmt", "enumerateDevices"))["response"]
 
             self._storage.update(json_response)
         if self._health is not None:
@@ -681,13 +709,17 @@ class Openmediavault():
                 self._post_url(self._construct_packet(
                     "FileSystemMgmt", "enumerateFilesystems"))["response"]
 
-            json_response['disks'] = \
+            json_response['smart'] = \
                 self._post_url(self._construct_packet(
                     "Smart", "enumerateDevices"))["response"]
 
             json_response['raid'] = \
                 self._post_url(self._construct_packet(
                     "RaidMgmt", "enumerateDevices"))["response"]
+
+            json_response['disk'] = \
+                self._post_url(self._construct_packet(
+                    "DiskMgmt", "enumerateDevices"))["response"]
 
             self._storage = OmvStorage(json_response)
         return self._storage
